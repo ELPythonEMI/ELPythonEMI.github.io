@@ -323,9 +323,56 @@
     .item-desc { font-size: 0.7rem; }
     .btn { padding: 6px 10px; font-size: 0.68rem; }
   }
+
+  .preloader {
+    position: fixed; inset: 0; z-index: 100;
+    background: #06090e; display: flex; align-items: center; justify-content: center;
+    transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.8s;
+  }
+  .preloader.done { opacity: 0; visibility: hidden; pointer-events: none; }
+  .preloader-content {
+    width: 90%; max-width: 440px; text-align: left;
+    font-family: 'JetBrains Mono', monospace;
+  }
+  .preloader-title {
+    font-size: 0.76rem; letter-spacing: 0.12em; color: var(--accent);
+    margin-bottom: 12px; font-weight: 700;
+  }
+  .preloader-bar {
+    width: 100%; height: 4px; background: rgba(255, 255, 255, 0.1);
+    border-radius: 2px; overflow: hidden; position: relative; margin-bottom: 10px;
+  }
+  .preloader-fill {
+    width: 0%; height: 100%;
+    background: linear-gradient(90deg, var(--accent), var(--cyan));
+    transition: width 0.3s ease;
+  }
+  .preloader-log {
+    font-size: 0.7rem; color: var(--ink-dim); letter-spacing: 0.05em; min-height: 18px;
+  }
+
+  .toast {
+    position: fixed; top: 76px; left: 50%; transform: translateX(-50%) translateY(-20px);
+    background: rgba(15, 23, 42, 0.9); border: 1px solid var(--accent);
+    color: var(--ink); font-family: 'JetBrains Mono', monospace; font-size: 0.76rem;
+    padding: 8px 18px; border-radius: 999px; box-shadow: 0 0 20px var(--accent-glow);
+    backdrop-filter: blur(12px); opacity: 0; pointer-events: none;
+    transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1); z-index: 99;
+  }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
 </style>
 </head>
 <body>
+
+<div id="preloader" class="preloader">
+  <div class="preloader-content">
+    <div class="preloader-title">● CARLEO SEC-CORE // INITIALIZING 3D ENVIRONMENT</div>
+    <div class="preloader-bar"><div class="preloader-fill" id="preloaderFill"></div></div>
+    <div class="preloader-log" id="preloaderLog">[SYS_BOOT] Loading shaders & assets...</div>
+  </div>
+</div>
+
+<div id="toast" class="toast"></div>
 
 <canvas id="scene"></canvas>
 <div class="grain"></div>
@@ -2165,6 +2212,112 @@
 
     renderer.render(scene, camera);
   }
+
+  var audioCtx = null;
+  function playRockRiff() {
+    try {
+      if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      if (audioCtx.state === 'suspended') audioCtx.resume();
+      var now = audioCtx.currentTime;
+      var notes = [82.41, 123.47, 164.81, 220.00, 329.63];
+      notes.forEach(function(freq, idx) {
+        var osc = audioCtx.createOscillator();
+        var gain = audioCtx.createGain();
+        var filter = audioCtx.createBiquadFilter();
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(freq, now + idx * 0.04);
+        filter.type = 'lowpass';
+        filter.frequency.setValueAtTime(1800, now);
+        filter.frequency.exponentialRampToValueAtTime(320, now + 1.6);
+        gain.gain.setValueAtTime(0.001, now);
+        gain.gain.linearRampToValueAtTime(0.2 / notes.length, now + idx * 0.04 + 0.02);
+        gain.gain.exponentialRampToValueAtTime(0.0001, now + 1.8);
+        osc.connect(filter);
+        filter.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start(now + idx * 0.04);
+        osc.stop(now + 1.9);
+      });
+    } catch(e) {}
+  }
+
+  var toastEl = document.getElementById('toast');
+  var toastTimer = null;
+  function showToast(msg) {
+    if (!toastEl) return;
+    toastEl.textContent = msg;
+    toastEl.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(function() {
+      toastEl.classList.remove('show');
+    }, 2800);
+  }
+
+  var raycaster = new THREE.Raycaster();
+  var rayMouse = new THREE.Vector2();
+  var clickableTargets = [
+    { obj: monitorGroup, stage: 1, label: '💻 Monitor & Terminale // Vai a Progetti' },
+    { obj: guitar, action: function() { playRockRiff(); showToast('🎸 [AUDIO] Fender Stratocaster — Riff rock!'); } },
+    { obj: shelfGroup, stage: 3, label: '📚 Libreria // Vai a Studi & Formazione' },
+    { obj: boardGroup, stage: 2, label: '📐 Lavagna // Vai a Competenze Tecniche' },
+    { obj: posterGroup, stage: 0, label: '🖼️ Poster Room // Benvenuto' }
+  ];
+
+  window.addEventListener('click', function(e) {
+    if (e.target.closest && (e.target.closest('.panel') || e.target.closest('.top-bar') || e.target.closest('.rail') || e.target.closest('.icon-btn') || e.target.closest('.btn') || e.target.closest('.quick-links'))) return;
+    rayMouse.x = (e.clientX / window.innerWidth) * 2 - 1;
+    rayMouse.y = -(e.clientY / window.innerHeight) * 2 + 1;
+    raycaster.setFromCamera(rayMouse, camera);
+    for (var ci = 0; ci < clickableTargets.length; ci++) {
+      var item = clickableTargets[ci];
+      var hits = raycaster.intersectObject(item.obj, true);
+      if (hits.length > 0) {
+        if (item.action) {
+          item.action();
+        } else if (item.stage !== undefined) {
+          targetProgress = item.stage / (N - 1);
+          if (item.label) showToast(item.label);
+          markInteraction();
+        }
+        break;
+      }
+    }
+  });
+
+  window.addEventListener('mousemove', function(e) {
+    if (e.target.closest && (e.target.closest('.panel') || e.target.closest('.top-bar') || e.target.closest('.rail') || e.target.closest('.icon-btn') || e.target.closest('.btn'))) return;
+    rayMouse.x = (e.clientX / window.innerWidth) * 2 - 1;
+    rayMouse.y = -(e.clientY / window.innerHeight) * 2 + 1;
+    raycaster.setFromCamera(rayMouse, camera);
+    var hasHover = false;
+    for (var ci = 0; ci < clickableTargets.length; ci++) {
+      if (raycaster.intersectObject(clickableTargets[ci].obj, true).length > 0) {
+        hasHover = true;
+        break;
+      }
+    }
+    canvas.style.cursor = hasHover ? 'pointer' : 'default';
+  });
+
+  var preloaderEl = document.getElementById('preloader');
+  var preloaderFill = document.getElementById('preloaderFill');
+  var preloaderLog = document.getElementById('preloaderLog');
+  var pPercent = 0;
+  var pInterval = setInterval(function() {
+    pPercent += Math.floor(Math.random() * 22) + 16;
+    if (pPercent >= 100) {
+      pPercent = 100;
+      clearInterval(pInterval);
+      if (preloaderFill) preloaderFill.style.width = '100%';
+      if (preloaderLog) preloaderLog.textContent = '[READY] Sec-Station 3D Online.';
+      setTimeout(function() {
+        if (preloaderEl) preloaderEl.classList.add('done');
+      }, 350);
+    } else {
+      if (preloaderFill) preloaderFill.style.width = pPercent + '%';
+      if (preloaderLog) preloaderLog.textContent = '[LOADING] Initializing modules (' + pPercent + '%)...';
+    }
+  }, 110);
 
   camera.position.copy(waypoints[0].pos);
   camera.lookAt(waypoints[0].look);

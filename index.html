@@ -489,11 +489,9 @@
   sunLight.shadow.bias = -0.0004;
   scene.add(sunLight);
 
-  var deskLampLight = new THREE.PointLight(0xffa143, 1.8, 4.5, 2.0);
-  deskLampLight.position.set(-1.8, 1.62, -1.65);
-  deskLampLight.castShadow = true;
-  deskLampLight.shadow.bias = -0.002;
-  scene.add(deskLampLight);
+  var ambientBackLight = new THREE.PointLight(0x00ff88, 1.2, 4.0, 2.0);
+  ambientBackLight.position.set(-1.92, 1.25, -1.95);
+  scene.add(ambientBackLight);
 
   var monitorGlowLight = new THREE.PointLight(0x00ff88, 1.4, 3.5, 2.0);
   monitorGlowLight.position.set(-1.8, 1.25, -1.5);
@@ -1460,33 +1458,7 @@
   photoFrame.castShadow = true;
   deskPhotoGroup.add(photoFrame);
 
-  var lampGroup = new THREE.Group();
-  lampGroup.position.set(-0.62, 0.77, -0.24);
-  desk.add(lampGroup);
 
-  var lampBase = new THREE.Mesh(new THREE.CylinderGeometry(0.06, 0.07, 0.02, 20), darkSteelMat);
-  lampBase.position.set(0, 0.01, 0);
-  lampGroup.add(lampBase);
-
-  var arm1 = new THREE.Mesh(new THREE.CylinderGeometry(0.007, 0.007, 0.32, 10), darkSteelMat);
-  arm1.position.set(0.04, 0.16, 0.02);
-  arm1.rotation.z = -0.35;
-  lampGroup.add(arm1);
-
-  var arm2 = new THREE.Mesh(new THREE.CylinderGeometry(0.007, 0.007, 0.32, 10), darkSteelMat);
-  arm2.position.set(0.12, 0.40, 0.05);
-  arm2.rotation.z = 0.55;
-  lampGroup.add(arm2);
-
-  var lampCone = new THREE.Mesh(new THREE.ConeGeometry(0.07, 0.12, 20, 1, true), darkSteelMat);
-  lampCone.position.set(0.18, 0.46, 0.08);
-  lampCone.rotation.z = Math.PI / 1.4;
-  lampCone.rotation.x = 0.2;
-  lampGroup.add(lampCone);
-
-  var lampBulbGlow = makeGlowSprite('rgba(255, 170, 68, 0.95)', 0.8, 0.8);
-  lampBulbGlow.position.set(0.18, 0.45, 0.08);
-  lampGroup.add(lampBulbGlow);
 
   var chair = new THREE.Group();
   chair.position.set(-1.8, 0, -0.82);
@@ -2051,8 +2023,7 @@
     var hue = (time * 0.1) % 1;
     pcRgbLight.color.setHSL(hue, 0.85, 0.55);
 
-    deskLampLight.intensity = 1.8 + Math.sin(time * 3.2) * 0.06;
-    lampBulbGlow.material.opacity = 0.75 + Math.sin(time * 3.2) * 0.08;
+
 
     var sPos = steamParticles.geometry.attributes.position.array;
     for (var sp = 0; sp < steamCount; sp++) {

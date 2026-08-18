@@ -1508,23 +1508,6 @@
   var steamParticles = new THREE.Points(steamGeo, steamMat);
   mugGroup.add(steamParticles);
 
-  var deskPhotoGroup = new THREE.Group();
-  deskPhotoGroup.position.set(-0.68, 0.77, 0.18);
-  deskPhotoGroup.rotation.y = Math.PI / 5;
-  desk.add(deskPhotoGroup);
-
-  var profileTexture = textureLoader.load(PROFILE_URI);
-  var photoMesh = new THREE.Mesh(
-    new THREE.PlaneGeometry(0.09, 0.11),
-    new THREE.MeshStandardMaterial({ map: profileTexture, roughness: 0.3 })
-  );
-  photoMesh.position.set(0, 0.065, 0);
-  deskPhotoGroup.add(photoMesh);
-
-  var photoFrame = new THREE.Mesh(new THREE.BoxGeometry(0.105, 0.125, 0.012), walnutMat);
-  photoFrame.position.set(0, 0.065, -0.006);
-  photoFrame.castShadow = true;
-  deskPhotoGroup.add(photoFrame);
 
 
 

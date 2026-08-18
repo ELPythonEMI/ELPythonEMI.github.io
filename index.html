@@ -256,41 +256,65 @@
 
   @media (max-width: 768px) {
     .panel {
-      left: 14px; right: 14px; width: auto; max-width: none;
-      top: auto; bottom: 54px;
-      transform: translateY(16px);
-      padding: 18px 16px; border-radius: 16px;
-      max-height: 48vh; overflow-y: auto;
+      left: 10px; right: 10px; width: auto; max-width: none;
+      top: 62px; bottom: 58px;
+      transform: translateX(-16px);
+      padding: 16px 14px; border-radius: 16px;
+      max-height: calc(100vh - 126px);
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+      overscroll-behavior: contain;
+      touch-action: pan-y;
     }
     .panel.on {
-      transform: translateY(0);
+      transform: translateX(0);
     }
-    .panel h1 { font-size: 1.4rem; }
-    .panel h2 { font-size: 1.18rem; margin-top: 4px; margin-bottom: 4px; }
-    .panel p { font-size: 0.82rem; line-height: 1.42; margin-top: 6px; }
-    .hero-profile { gap: 10px; margin: 8px 0 2px 0; }
-    .avatar-wrap { width: 46px; height: 46px; }
-    .roles { gap: 5px; margin-top: 8px; font-size: 0.66rem; }
-    .role-pill { padding: 2px 6px; }
-    .cta-row { margin-top: 12px; gap: 6px; }
-    .btn { padding: 7px 12px; font-size: 0.72rem; border-radius: 8px; }
-    .item-list { margin-top: 8px; gap: 6px; max-height: 30vh; }
-    .item-card { padding: 8px 10px; border-radius: 8px; }
-    .item-title { font-size: 0.85rem; }
-    .item-desc { font-size: 0.74rem; line-height: 1.35; margin-top: 2px; }
-    .item-tags { margin-top: 4px; font-size: 0.6rem; gap: 4px; }
-    .tag { padding: 1px 6px; }
-    .top-bar { left: 12px; right: 12px; top: 10px; }
-    .brand { padding: 5px 10px; font-size: 0.7rem; gap: 8px; }
-    .brand .badge { width: 20px; height: 20px; font-size: 0.68rem; }
+    .panel h1 { font-size: 1.35rem; line-height: 1.18; }
+    .panel h2 { font-size: 1.15rem; margin-top: 4px; margin-bottom: 4px; }
+    .panel p { font-size: 0.83rem; line-height: 1.5; margin-top: 8px; }
+    .hero-profile { gap: 10px; margin: 8px 0 4px 0; }
+    .avatar-wrap { width: 48px; height: 48px; }
+    .roles { gap: 5px; margin-top: 10px; font-size: 0.68rem; }
+    .role-pill { padding: 3px 7px; }
+    .cta-row { margin-top: 14px; gap: 8px; flex-wrap: wrap; }
+    .btn { padding: 8px 14px; font-size: 0.74rem; border-radius: 8px; }
+    .item-list {
+      margin-top: 10px; gap: 8px;
+      max-height: none;
+      overflow-y: visible;
+    }
+    .item-card { padding: 10px 12px; border-radius: 10px; }
+    .item-title { font-size: 0.88rem; }
+    .item-desc { font-size: 0.78rem; line-height: 1.45; margin-top: 3px; }
+    .item-tags { margin-top: 6px; font-size: 0.62rem; gap: 4px; }
+    .tag { padding: 2px 7px; }
+    .top-bar { left: 10px; right: 10px; top: 10px; }
+    .brand { padding: 6px 12px; font-size: 0.72rem; gap: 6px; }
+    .brand .badge { width: 22px; height: 22px; font-size: 0.68rem; }
+    .brand > span:not(.badge) { display: none; }
     .status-tag { display: none; }
-    .quick-links { gap: 5px; }
-    .icon-btn { width: 32px; height: 32px; border-radius: 8px; }
-    .rail { right: 8px; }
+    .quick-links { gap: 6px; }
+    .icon-btn { width: 34px; height: 34px; border-radius: 8px; }
+    .rail { right: 6px; }
     .track { height: 80px; }
     .dot-label { display: none; }
-    .dot-circle { width: 8px; height: 8px; }
-    .hint { bottom: 12px; font-size: 0.6rem; padding: 4px 10px; letter-spacing: 0.08em; }
+    .dot-circle { width: 9px; height: 9px; }
+    .hint { bottom: 10px; font-size: 0.6rem; padding: 5px 12px; letter-spacing: 0.08em; }
+  }
+
+  @media (max-width: 380px) {
+    .panel {
+      left: 8px; right: 8px;
+      top: 58px; bottom: 54px;
+      padding: 14px 10px;
+      max-height: calc(100vh - 118px);
+    }
+    .panel h1 { font-size: 1.2rem; }
+    .panel h2 { font-size: 1.05rem; }
+    .panel p { font-size: 0.78rem; }
+    .item-title { font-size: 0.82rem; }
+    .item-desc { font-size: 0.73rem; }
+    .btn { padding: 7px 10px; font-size: 0.7rem; }
   }
 </style>
 </head>
@@ -1941,6 +1965,14 @@
   }
 
   window.addEventListener('wheel', function(e) {
+    var p = e.target.closest ? e.target.closest('.panel') : null;
+    if (p) {
+      var canScrollUp = p.scrollTop > 0 && e.deltaY < 0;
+      var canScrollDown = (p.scrollTop + p.clientHeight + 1 < p.scrollHeight) && e.deltaY > 0;
+      if (canScrollUp || canScrollDown) {
+        return;
+      }
+    }
     e.preventDefault();
     var dy = e.deltaY;
     if (e.deltaMode === 1) dy *= 20;
@@ -1949,21 +1981,36 @@
     markInteraction();
   }, { passive: false });
 
+  var touchStartX = null;
   var touchStartY = null;
+  var touchOnPanel = false;
+
   window.addEventListener('touchstart', function(e) {
-    if (e.touches.length === 1) touchStartY = e.touches[0].clientY;
+    if (e.touches.length === 1) {
+      touchStartX = e.touches[0].clientX;
+      touchStartY = e.touches[0].clientY;
+      touchOnPanel = !!(e.target.closest && e.target.closest('.panel'));
+    }
   }, { passive: true });
 
   window.addEventListener('touchmove', function(e) {
     if (touchStartY === null || e.touches.length !== 1) return;
+    if (touchOnPanel) return;
     e.preventDefault();
     var dy = touchStartY - e.touches[0].clientY;
+    var dx = touchStartX - e.touches[0].clientX;
     touchStartY = e.touches[0].clientY;
-    targetProgress = clamp01(targetProgress + dy / 480);
+    touchStartX = e.touches[0].clientX;
+    var delta = Math.abs(dy) > Math.abs(dx) ? dy : dx;
+    targetProgress = clamp01(targetProgress + delta / 420);
     markInteraction();
   }, { passive: false });
 
-  window.addEventListener('touchend', function() { touchStartY = null; });
+  window.addEventListener('touchend', function() {
+    touchStartX = null;
+    touchStartY = null;
+    touchOnPanel = false;
+  });
 
   window.addEventListener('keydown', function(e) {
     var step = 1 / (N - 1);

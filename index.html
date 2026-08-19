@@ -92,6 +92,24 @@ a{color:inherit;text-decoration:none}
 .help-close{position:absolute;top:16px;right:16px;width:32px;height:32px;border-radius:8px;background:rgba(255,255,255,0.05);border:1px solid var(--panel-border);color:var(--ink-dim);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:1.1rem;transition:all 0.2s ease}
 .help-close:hover{border-color:var(--accent);color:var(--accent)}
 @media(max-width:768px){
+  .hand-hint{
+  display:block;
+  position:fixed;
+  right:48px;
+  top:50%;
+  transform:translateY(-50%) translateX(-6px);
+  z-index:11;
+  pointer-events:none;
+  filter:drop-shadow(0 0 10px var(--accent-glow));
+  animation:hand-point 1.6s ease-in-out infinite,
+            hand-fade-out 0.6s ease 6s forwards;
+}
+.hand-hint svg{transform:rotate(-12deg)}
+@keyframes hand-point{
+  0%,100%{transform:translateY(-50%) translateX(-6px)}
+  50%{transform:translateY(-50%) translateX(6px)}
+}
+@keyframes hand-fade-out{to{opacity:0;visibility:hidden}}
 .panel{left:12px;right:12px;width:auto;max-width:none;top:auto;bottom:44px;transform:translateY(16px);padding:14px 14px;border-radius:16px;max-height:48vh;overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;touch-action:pan-y}
 .panel.on{transform:translateY(0)}
 .panel[data-stage="0"],.panel[data-stage="4"]{max-height:42vh;padding:12px 14px}
@@ -217,6 +235,13 @@ a{color:inherit;text-decoration:none}
 <div class="panel" data-stage="3"><span class="eyebrow">Sulla Libreria — Formazione &amp; Certificazioni</span><h2>Studi &amp; Qualifiche</h2><div class="item-list"><div class="item-card"><div class="item-title">Laurea Magistrale in Storia e Civiltà Europea</div><span class="item-desc">Percorso accademico magistrale che ha affinato elevate capacità analitiche, di ricerca critica e sintesi metodologica.</span></div><div class="item-card"><div class="item-title" style="color:#38bdf8">Diploma Istituto Tecnico e Professionale</div><span class="item-desc"><b>Electrical, Electronic and Communications Engineering</b> — Luglio 2008.<br>Solida formazione tecnica in ingegneria elettronica, telecomunicazioni e sistemi circuitali.</span></div><div class="item-card"><div class="item-title">Cyber Threat Management</div><span class="item-desc">Certificazione professionale per la gestione, analisi e mitigazione delle minacce informatiche.</span></div><div class="item-card"><div class="item-title">Ethical Hacker Certification</div><span class="item-desc">Certificazione in tecniche di penetration testing, vulnerability assessment e difesa attiva.</span></div><div class="item-card"><div class="item-title">Python Essentials 2</div><span class="item-desc">Certificazione avanzata in programmazione orientata agli oggetti, moduli e gestione eccezioni in Python.</span></div></div></div>
 <div class="panel" data-stage="4"><span class="eyebrow">Angolo Contatti — Parliamo di Nuove Sfide</span><h2>Collaboriamo Insieme</h2><p>Sono aperto a nuove opportunità lavorative e collaborazioni professionali nell'ambito <b>IT Support</b>, <b>Cybersecurity</b>, <b>Python Automation</b> e <b>Digital Marketing</b>.</p><div class="item-list" style="margin-top:14px"><div class="item-card" style="border-left:3px solid var(--accent)"><div class="item-title" style="font-size:0.9rem">Email Diretta</div><a href="mailto:emicarleolibero.it" style="color:var(--accent);font-family:'JetBrains Mono',monospace;font-size:0.85rem;word-break:break-all">emicarleolibero.it</a></div></div><div class="cta-row"><a href="mailto:emicarleolibero.it" class="btn primary">Scrivi un'email</a><a href="https://www.linkedin.com/in/emidio-carmine-carleo-b04bb448" target="_blank" class="btn">LinkedIn</a><a href="https://github.com/ELPythonEMI" target="_blank" class="btn">GitHub</a></div></div>
 <div class="rail"><div class="track"><div class="track-fill" id="trackFill"></div></div><div class="dots"><button class="dot-btn on" data-go="0" aria-label="Ingresso"><span class="dot-circle"></span><span class="dot-label">01 Ingresso</span></button><button class="dot-btn" data-go="1" aria-label="Scrivania"><span class="dot-circle"></span><span class="dot-label">02 Scrivania</span></button><button class="dot-btn" data-go="2" aria-label="Lavagna"><span class="dot-circle"></span><span class="dot-label">03 Lavagna</span></button><button class="dot-btn" data-go="3" aria-label="Libreria"><span class="dot-circle"></span><span class="dot-label">04 Libreria</span></button><button class="dot-btn" data-go="4" aria-label="Contatti"><span class="dot-circle"></span><span class="dot-label">05 Contatti</span></button></div></div>
+<div class="hand-hint" id="handHint" aria-hidden="true">
+  <svg viewBox="0 0 64 64" width="40" height="40">
+    <path d="M22 44V20a3 3 0 0 1 6 0v14h2V14a3 3 0 0 1 6 0v20h2V18a3 3 0 0 1 6 0v16h2V24a3 3 0 0 1 6 0v18c0 8-6 14-14 14-6 0-10-3-13-8l-6-10c-1-2 1-4 3-3l4 2z"
+          fill="rgba(255,255,255,0.92)"
+          stroke="var(--accent)" stroke-width="1.5" stroke-linejoin="round"/>
+  </svg>
+</div>
 <div class="hint" id="hint"><div class="hint-row"><span><span class="hint-key">↕</span> Scorri</span><span><span class="hint-key">←→</span> Naviga</span><span><span class="hint-key">1-5</span> Sezioni</span><span>Clicca gli oggetti 3D</span></div><div class="chevron"></div></div>
 <button class="help-btn" id="helpBtn" title="Aiuto">?</button>
 <div class="compass"><div class="compass-inner"><div class="compass-needle" id="compassNeedle"></div><div class="compass-dot"></div></div></div>
@@ -324,6 +349,17 @@ var clock=new THREE.Clock();var blinkCursor=true;var termTimer=0;var logPackets=
 function renderLoop(){requestAnimationFrame(renderLoop);var delta=clock.getDelta();var time=clock.getElapsedTime();progress+=(targetProgress-progress)*0.085;var stageFloat=progress*(N-1);var tClamped=Math.min(Math.max(progress,0.0001),0.9999);var curPos=posCurve.getPoint(tClamped);var curLook=lookCurve.getPoint(tClamped);camera.position.set(curPos.x+mouseX*0.16,curPos.y-mouseY*0.09,curPos.z);camera.lookAt(curLook.x+mouseX*0.28,curLook.y-mouseY*0.18,curLook.z);updateUI(stageFloat);frontFans.forEach(function(fan,idx){fan.rotation.z+=0.08+idx*0.02;});var hue=(time*0.1)%1;pcRgbLight.color.setHSL(hue,0.85,0.55);var sPos=steamParticles.geometry.attributes.position.array;for(var sp=0;sp<steamCount;sp++){sPos[sp*3+1]+=0.0018;sPos[sp*3]+=Math.sin(time*2+sp)*0.0005;if(sPos[sp*3+1]>0.28){sPos[sp*3+1]=0.09;sPos[sp*3]=(Math.random()-0.5)*0.03;}}steamParticles.geometry.attributes.position.needsUpdate=true;serverLeds.forEach(function(led){if(Math.random()<0.04)led.visible=!led.visible;});var dPos=dustParticles.geometry.attributes.position.array;for(var dp=0;dp<dustCount;dp++){dPos[dp*3+1]+=0.0012;dPos[dp*3]+=Math.sin(time*0.25+dp)*0.0004;if(dPos[dp*3+1]>3.2){dPos[dp*3+1]=0;dPos[dp*3]=(Math.random()-0.5)*8.5;}}dustParticles.geometry.attributes.position.needsUpdate=true;termTimer+=delta;if(termTimer>0.6){termTimer=0;blinkCursor=!blinkCursor;if(Math.random()<0.25){var newLog=logPackets[Math.floor(Math.random()*logPackets.length)];terminalLines.shift();terminalLines.push({text:newLog,color:"#00e5ff"});}var ctx=screenTexObj.ctx;var w=screenTexObj.canvas.width;var h=screenTexObj.canvas.height;ctx.fillStyle="#050c14";ctx.fillRect(0,0,w,h);ctx.fillStyle="#0f1d2e";ctx.fillRect(0,0,w,44);ctx.fillStyle="#00ff88";ctx.font="bold 20px monospace";ctx.fillText("> TERMINAL carleosec-station Active",24,30);ctx.fillStyle="#38bdf8";ctx.font="bold 18px monospace";ctx.fillText("CPU "+Math.floor(16+Math.sin(time)*8)+"% RAM 32GB NETWORK 1Gbps",w-460,30);ctx.font="bold 22px monospace";var startY=88;terminalLines.forEach(function(l,idx){ctx.fillStyle=l.color;ctx.fillText(l.text,28,startY+idx*42);});ctx.fillStyle="#00ff88";ctx.fillText("carleosec-core "+(blinkCursor?"_":" "),28,startY+terminalLines.length*42);screenTexObj.tex.needsUpdate=true;}renderer.render(scene,camera);}
 var preloaderEl=document.getElementById("preloader");var preloaderFill=document.getElementById("preloaderFill");var preloaderLog=document.getElementById("preloaderLog");var pPercent=0;var pInterval=setInterval(function(){pPercent+=Math.floor(Math.random()*22+16);if(pPercent>=100){pPercent=100;clearInterval(pInterval);if(preloaderFill)preloaderFill.style.width="100%";if(preloaderLog)preloaderLog.textContent="> READY: Sec-Station 3D Online.";setTimeout(function(){if(preloaderEl)preloaderEl.classList.add("done");},350);}else{if(preloaderFill)preloaderFill.style.width=pPercent+"%";if(preloaderLog)preloaderLog.textContent="> LOADING: Initializing modules "+pPercent+"%";}},110);
 camera.position.copy(waypoints[0].pos);camera.lookAt(waypoints[0].look);renderLoop();
+(function(){
+  var hand=document.getElementById('handHint');
+  if(!hand)return;
+  document.querySelectorAll('.dot-btn').forEach(function(btn){
+    btn.addEventListener('click',function(){
+      hand.style.transition='opacity .4s ease';
+      hand.style.opacity='0';
+      setTimeout(function(){hand.style.display='none'},400);
+    },{once:true});
+  });
+})();
 </script>
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-0DV1305BKD"></script>
 <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag("js",new Date());gtag("config","G-0DV1305BKD");</script>

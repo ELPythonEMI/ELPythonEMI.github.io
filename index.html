@@ -238,12 +238,17 @@ function markInteraction(){if(!userInteracted){userInteracted=true;hintEl.style.
 var interactiveObjects=[];
 function registerInteractive(obj,label,action){interactiveObjects.push({obj:obj,label:label,action:action,isHovered:false});obj.traverse(function(child){if(child.isMesh&&child.material&&child.material.emissive){child.userData.origEmissive=child.material.emissive.getHex();child.userData.origEmissiveIntensity=child.material.emissiveIntensity||0;}});}
 function setHoverState(item,state){item.isHovered=state;item.obj.traverse(function(child){if(child.isMesh&&child.material&&child.material.emissive){if(state){child.material.emissive.setHex(0x10b981);child.material.emissiveIntensity=0.35;}else if(child.userData.origEmissive!==undefined){child.material.emissive.setHex(child.userData.origEmissive);child.material.emissiveIntensity=child.userData.origEmissiveIntensity||0;}}});if(state){hoverLabel.textContent=item.label;hoverLabel.classList.add("show");}else{hoverLabel.classList.remove("show");}}
-registerInteractive(posterGroup,"Poster — Benvenuto",function(){targetProgress=0;showToast("🏠 Benvenuto — Sezione Ingresso");});
-registerInteractive(monitorGroup,"Monitor — Vai a Progetti",function(){targetProgress=1/(N-1);showToast("🖥️ Monitor Terminale — Progetti");});
+registerInteractive(posterGroup,"Poster — Benvenuto Cosa vuoi ascoltare oggi?",function(){targetProgress=0;showToast("🏠 Benvenuto — Cosa vuoi ascoltare oggi?");window.open("https://elpythonemi.github.io/html-version-Cosa-ascoltare-oggi-/", "_blank");
+});
+registerInteractive(monitorGroup,"Monitor — Vai a Progetti",function(){targetProgress=1/(N-1);showToast("🖥️ Monitor Terminale — Progetti");window.open("https://github.com/ELPythonEMI", "_blank");
+});
 registerInteractive(pcGroup,"PC Battlestation",function(){targetProgress=1/(N-1);showToast("💻 PC RGB — CPU i7 / 32GB RAM / 1Gbps");});
 registerInteractive(kbdGroup,"Tastiera Meccanica",function(){showToast("⌨️ Tastiera meccanica — RGB Backlight");});
 registerInteractive(mouseGroup,"Mouse Gaming",function(){showToast("🖱️ Mouse — 16000 DPI Sensor");});
-registerInteractive(hpGroup,"Cuffie Audio",function(){showToast("🎧 Cuffie — Audio Professionale ASIO");});
+registerInteractive(hpGroup, "Cuffie Audio", function() {
+    showToast("🎧 Cuffie — Audio Professionale ASIO");
+    window.open("https://elpythonemi.github.io/html-version-Cosa-ascoltare-oggi-/", "_blank");
+});
 registerInteractive(mugGroup,"Caffè & Codice",function(){showToast("☕ Caffè — Carburante per sviluppatori");});
 registerInteractive(boardGroup,"Lavagna — Competenze",function(){targetProgress=2/(N-1);showToast("📝 Lavagna — Competenze Tecniche");});
 registerInteractive(shelfGroup,"Libreria — Formazione",function(){targetProgress=3/(N-1);showToast("📚 Libreria — Studi & Certificazioni");});

@@ -358,20 +358,87 @@ var underDeskLed=new THREE.Mesh(new THREE.BoxGeometry(1.68,0.01,0.01),new THREE.
 underDeskLed.position.set(0,0.71,0.38);desk.add(underDeskLed);
 var underDeskLight=new THREE.PointLight(0x00ff88,0.8,2.0,2.0);underDeskLight.position.set(-1.8,0.65,-1.35);scene.add(underDeskLight);
 
-// ─── NEON SIGN (spazio libero in alto sulla parete di fondo tra poster e lavagna) ────
-var neonGroup=new THREE.Group();neonGroup.position.set(-0.52,2.72,-3.18);room.add(neonGroup);
-var neonTex=makeCanvasTexture(512,128,function(ctx,w,h){
-  ctx.fillStyle="rgba(2,6,15,0)";ctx.fillRect(0,0,w,h);
-  ctx.shadowColor="#10b981";ctx.shadowBlur=28;
-  ctx.font="bold 68px 'Courier New',monospace";ctx.fillStyle="#10b981";
-  ctx.fillText("</carleo>",24,94);
-  ctx.shadowColor="#10b981";ctx.shadowBlur=55;ctx.fillText("</carleo>",24,94);
-});
-var neonMesh=new THREE.Mesh(new THREE.PlaneGeometry(1.2,0.30),new THREE.MeshBasicMaterial({map:neonTex.tex,transparent:true,opacity:1.0}));neonMesh.position.set(0,0,0.02);neonGroup.add(neonMesh);
-var neonBoard=new THREE.Mesh(new THREE.BoxGeometry(1.28,0.36,0.025),new THREE.MeshStandardMaterial({color:0x0a0f18,roughness:0.8}));neonBoard.position.set(0,0,0);neonGroup.add(neonBoard);
-var neonGlowLeft=makeGlowSprite("rgba(16,185,129,0.9)",1.6,0.6);neonGlowLeft.position.set(-0.25,0,0.06);neonGroup.add(neonGlowLeft);
-var neonGlowRight=makeGlowSprite("rgba(16,185,129,0.9)",1.6,0.6);neonGlowRight.position.set(0.25,0,0.06);neonGroup.add(neonGlowRight);
-var neonLight=new THREE.PointLight(0x10b981,2.2,3.5,2.0);neonLight.position.set(-0.52,2.72,-2.8);scene.add(neonLight);
+// ─── NEON SIGN migliorato ─────────────────────────
+var neonGroup=new THREE.Group();
+neonGroup.position.set(-0.52,2.72,-3.18);
+room.add(neonGroup);
+
+var neonCanvas=document.createElement("canvas");
+neonCanvas.width=512;neonCanvas.height=128;
+var neonCtx=neonCanvas.getContext("2d");
+var neonTex2=new THREE.CanvasTexture(neonCanvas);
+
+function drawNeon(time){
+  var ctx=neonCtx,w=512,h=128;
+  // Sfondo scuro con scanlines
+  ctx.fillStyle="rgba(2,6,15,0.92)";
+  ctx.fillRect(0,0,w,h);
+  // Scanlines pixel effect
+  for(var sl=0;sl<h;sl+=2){
+    ctx.fillStyle="rgba(0,0,0,0.18)";
+    ctx.fillRect(0,sl,w,1);
+  }
+  // Pixel grid sottile
+  ctx.strokeStyle="rgba(255,255,255,0.03)";
+  ctx.lineWidth=0.5;
+  for(var px=0;px<w;px+=8){
+    ctx.beginPath();ctx.moveTo(px,0);ctx.lineTo(px,h);ctx.stroke();
+  }
+  // Colore arcobaleno che scorre
+  var hue=(time*40)%360;
+  var hue2=(hue+120)%360;
+  var grad=ctx.createLinearGradient(0,0,w,0);
+  grad.addColorStop(0,"hsl("+hue+",100%,60%)");
+  grad.addColorStop(0.5,"hsl("+hue2+",100%,65%)");
+  grad.addColorStop(1,"hsl("+(hue+240)%360+",100%,60%)");
+  // Glow esterno
+  ctx.shadowColor="hsl("+hue+",100%,60%)";
+  ctx.shadowBlur=32;
+  ctx.font="bold 66px 'Courier New',monospace";
+  ctx.fillStyle=grad;
+  ctx.fillText("</carleo>",24,90);
+  // Doppio glow intenso
+  ctx.shadowBlur=60;
+  ctx.globalAlpha=0.55;
+  ctx.fillText("</carleo>",24,90);
+  ctx.globalAlpha=1.0;
+  ctx.shadowBlur=0;
+  // Glitch orizzontale random
+  if(Math.random()<0.04){
+    var gy=Math.floor(Math.random()*h);
+    var gw=Math.floor(Math.random()*120+40);
+    var gx=Math.floor(Math.random()*(w-gw));
+    var id=ctx.getImageData(gx,gy,gw,1);
+    ctx.putImageData(id,gx+Math.floor(Math.random()*6-3),gy);
+  }
+  // Pixel flicker sui bordi del testo
+  for(var fi=0;fi<6;fi++){
+    if(Math.random()<0.3){
+      var fx=Math.floor(Math.random()*w);
+      var fy=Math.floor(Math.random()*h);
+      ctx.fillStyle="hsl("+((hue+fi*60)%360)+",100%,80%)";
+      ctx.fillRect(fx,fy,2,2);
+    }
+  }
+}
+
+var neonMesh=new THREE.Mesh(
+  new THREE.PlaneGeometry(1.2,0.30),
+  new THREE.MeshBasicMaterial({map:neonTex2,transparent:true,opacity:1.0})
+);
+neonMesh.position.set(0,0,0.02);
+neonGroup.add(neonMesh);
+
+var neonBoard=new THREE.Mesh(
+  new THREE.BoxGeometry(1.28,0.36,0.025),
+  new THREE.MeshStandardMaterial({color:0x0a0f18,roughness:0.8})
+);
+neonBoard.position.set(0,0,0);
+neonGroup.add(neonBoard);
+
+var neonLight=new THREE.PointLight(0x10b981,2.2,3.5,2.0);
+neonLight.position.set(-0.52,2.72,-2.8);
+scene.add(neonLight);
 
 // ─── MECHANICAL KEYBOARD RGB ────────────────────────────────
 var kbdLedStrip=new THREE.Mesh(new THREE.BoxGeometry(0.44,0.01,0.008),new THREE.MeshBasicMaterial({color:0x10b981}));
@@ -456,7 +523,15 @@ var toastEl=document.getElementById("toast");var toastTimer=null;function showTo
 function updateUI(stageFloat){panels.forEach(function(p){var idx=parseInt(p.getAttribute("data-stage"),10);var diff=Math.abs(stageFloat-idx);p.classList.toggle("on",diff<0.44);});var nearestStage=Math.round(stageFloat);dotBtns.forEach(function(b){var bIdx=parseInt(b.getAttribute("data-go"),10);b.classList.toggle("on",bIdx===nearestStage);});trackFill.style.height=clamp01(stageFloat/(N-1))*100+"%";if(compassNeedle){var angle=stageFloat*360/N;compassNeedle.style.transform="translate(-50%,-100%) rotate("+angle+"deg)";}}
 var clock=new THREE.Clock();var blinkCursor=true;var termTimer=0;var logPackets=["[SCAN] Port 443 HTTPS SECURE","[AUTH] SSH Key ED25519 Verified","[EXEC] openpyxl merge complete (14 sheets)","[SECOPS] Zero-Trust policy synchronized","[AUDIO] Fender Stratocaster ASIO Ready"];
 var _pageVisible=true;document.addEventListener("visibilitychange",function(){_pageVisible=!document.hidden;if(_pageVisible)renderLoop();});
-function renderLoop(){if(!_pageVisible)return;requestAnimationFrame(renderLoop);var delta=clock.getDelta();var time=clock.getElapsedTime();progress+=(targetProgress-progress)*0.085;var stageFloat=progress*(N-1);var tClamped=Math.min(Math.max(progress,0.0001),0.9999);var curPos=posCurve.getPoint(tClamped);var curLook=lookCurve.getPoint(tClamped);camera.position.set(curPos.x+mouseX*0.16,curPos.y-mouseY*0.09,curPos.z);camera.lookAt(curLook.x+mouseX*0.28,curLook.y-mouseY*0.18,curLook.z);updateUI(stageFloat);frontFans.forEach(function(fan,idx){fan.rotation.z+=0.08+idx*0.02;});var hue=(time*0.1)%1;pcRgbLight.color.setHSL(hue,0.85,0.55);if(typeof kbdLight!=="undefined"){kbdLight.color.setHSL((time*0.12+0.3)%1,0.9,0.5);}if(typeof neonLight!=="undefined"){neonLight.intensity=1.6+Math.sin(time*3.5)*0.25;}if(typeof rackStripes!=="undefined"&&rackStripes.length){rackStripes.forEach(function(led,idx){if(Math.random()<0.08)led.visible=!led.visible;});}if(typeof routerLeds!=="undefined"&&routerLeds.length){routerLeds.forEach(function(led,idx){if(Math.random()<0.12)led.visible=!led.visible;});}var sPos=steamParticles.geometry.attributes.position.array;for(var sp=0;sp<steamCount;sp++){sPos[sp*3+1]+=0.0018;sPos[sp*3]+=Math.sin(time*2+sp)*0.0005;if(sPos[sp*3+1]>0.28){sPos[sp*3+1]=0.09;sPos[sp*3]=(Math.random()-0.5)*0.03;}}steamParticles.geometry.attributes.position.needsUpdate=true;serverLeds.forEach(function(led){if(Math.random()<0.04)led.visible=!led.visible;});termTimer+=delta;if(termTimer>0.6){termTimer=0;blinkCursor=!blinkCursor;if(Math.random()<0.25){var newLog=logPackets[Math.floor(Math.random()*logPackets.length)];terminalLines.shift();terminalLines.push({text:newLog,color:"#00e5ff"});}var ctx=screenTexObj.ctx;var w=screenTexObj.canvas.width;var h=screenTexObj.canvas.height;ctx.fillStyle="#050c14";ctx.fillRect(0,0,w,h);ctx.fillStyle="#0f1d2e";ctx.fillRect(0,0,w,44);ctx.fillStyle="#00ff88";ctx.font="bold 20px monospace";ctx.fillText("> TERMINAL carleosec-station Active",24,30);ctx.fillStyle="#38bdf8";ctx.font="bold 18px monospace";ctx.fillText("CPU "+Math.floor(16+Math.sin(time)*8)+"% RAM 32GB NETWORK 1Gbps",w-460,30);ctx.font="bold 22px monospace";var startY=88;terminalLines.forEach(function(l,idx){ctx.fillStyle=l.color;ctx.fillText(l.text,28,startY+idx*42);});ctx.fillStyle="#00ff88";ctx.fillText("carleosec-core "+(blinkCursor?"_":" "),28,startY+terminalLines.length*42);screenTexObj.tex.needsUpdate=true;}renderer.render(scene,camera);}
+function renderLoop(){if(!_pageVisible)return;requestAnimationFrame(renderLoop);var delta=clock.getDelta();var time=clock.getElapsedTime();progress+=(targetProgress-progress)*0.085;var stageFloat=progress*(N-1);var tClamped=Math.min(Math.max(progress,0.0001),0.9999);var curPos=posCurve.getPoint(tClamped);var curLook=lookCurve.getPoint(tClamped);camera.position.set(curPos.x+mouseX*0.16,curPos.y-mouseY*0.09,curPos.z);camera.lookAt(curLook.x+mouseX*0.28,curLook.y-mouseY*0.18,curLook.z);updateUI(stageFloat);frontFans.forEach(function(fan,idx){fan.rotation.z+=0.08+idx*0.02;});var hue=(time*0.1)%1;pcRgbLight.color.setHSL(hue,0.85,0.55);if(typeof kbdLight!=="undefined"){kbdLight.color.setHSL((time*0.12+0.3)%1,0.9,0.5);}if(typeof neonLight!=="undefined"){neonLight.intensity=1.6+Math.sin(time*3.5)*0.25;}if(typeof rackStripes!=="undefined"&&rackStripes.length){rackStripes.forEach(function(led,idx){if(Math.random()<0.08)led.visible=!led.visible;});}if(typeof routerLeds!=="undefined"&&routerLeds.length){routerLeds.forEach(function(led,idx){if(Math.random()<0.12)led.visible=!led.visible;});}var sPos=steamParticles.geometry.attributes.position.array;for(var sp=0;sp<steamCount;sp++){sPos[sp*3+1]+=0.0018;sPos[sp*3]+=Math.sin(time*2+sp)*0.0005;if(sPos[sp*3+1]>0.28){sPos[sp*3+1]=0.09;sPos[sp*3]=(Math.random()-0.5)*0.03;}}steamParticles.geometry.attributes.position.needsUpdate=true;serverLeds.forEach(function(led){if(Math.random()<0.04)led.visible=!led.visible;});termTimer+=delta;if(termTimer>0.6){termTimer=0;blinkCursor=!blinkCursor;if(Math.random()<0.25){var newLog=logPackets[Math.floor(Math.random()*logPackets.length)];terminalLines.shift();terminalLines.push({text:newLog,color:"#00e5ff"});}var ctx=screenTexObj.ctx;var w=screenTexObj.canvas.width;var h=screenTexObj.canvas.height;ctx.fillStyle="#050c14";ctx.fillRect(0,0,w,h);ctx.fillStyle="#0f1d2e";ctx.fillRect(0,0,w,44);ctx.fillStyle="#00ff88";ctx.font="bold 20px monospace";ctx.fillText("> TERMINAL carleosec-station Active",24,30);ctx.fillStyle="#38bdf8";ctx.font="bold 18px monospace";ctx.fillText("CPU "+Math.floor(16+Math.sin(time)*8)+"% RAM 32GB NETWORK 1Gbps",w-460,30);ctx.font="bold 22px monospace";var startY=88;terminalLines.forEach(function(l,idx){ctx.fillStyle=l.color;ctx.fillText(l.text,28,startY+idx*42);});ctx.fillStyle="#00ff88";ctx.fillText("carleosec-core "+(blinkCursor?"_":" "),28,startY+terminalLines.length*42);screenTexObj.tex.needsUpdate=true;}renderer.render(scene,camera);// Dentro renderLoop(), dopo gli altri aggiornamenti:
+if(typeof neonTex2!=="undefined"){
+  drawNeon(time);
+  neonTex2.needsUpdate=true;
+  // Colore luce che segue l'arcobaleno
+  var nh=(time*40)%360;
+  neonLight.color.setHSL(nh/360,1.0,0.55);
+  neonLight.intensity=2.0+Math.sin(time*4.0)*0.5;
+}}
 var preloaderEl=document.getElementById("preloader");var preloaderFill=document.getElementById("preloaderFill");var preloaderLog=document.getElementById("preloaderLog");var pPercent=0;var pInterval=setInterval(function(){pPercent+=Math.floor(Math.random()*22+16);if(pPercent>=100){pPercent=100;clearInterval(pInterval);if(preloaderFill)preloaderFill.style.width="100%";if(preloaderLog)preloaderLog.textContent="> READY: Sec-Station 3D Online.";setTimeout(function(){if(preloaderEl)preloaderEl.classList.add("done");},350);}else{if(preloaderFill)preloaderFill.style.width=pPercent+"%";if(preloaderLog)preloaderLog.textContent="> LOADING: Initializing modules "+pPercent+"%";}},110);
 camera.position.copy(waypoints[0].pos);camera.lookAt(waypoints[0].look);renderLoop();
 (function(){
